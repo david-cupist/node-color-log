@@ -166,10 +166,10 @@ class Logger {
     }
 
     createNamedLogger({ 
-        ext = true, 
-        showCaller = true, 
-        showLineNumber = true, 
-        dateTimeFormat = 'iso' 
+        ext, 
+        showCaller, 
+        showLineNumber, 
+        dateTimeFormat 
     }) {
         return new Logger(true, ext, showCaller, showLineNumber, dateTimeFormat)
     }
