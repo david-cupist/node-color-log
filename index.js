@@ -35,30 +35,6 @@ const CONFIG = {
 // Sequence of levels is important.
 const LEVELS = ["success", "debug", "info", "notice", "warn", "error", "disable"];
 
-function _getCallerInfoList () {
-    const trace = new Error().stack;
-
-    // Get a list split by \n.
-    let traceLineList = trace.split('\n');
-    // Get the same list without the first 'Error' item.
-    traceLineList = traceLineList.slice(1);
-
-    /* Each item in traceLineList has format like this:
-     * 'at Object.addError (/Volumes/SSD_2TB/Dropbox/Projects/LonelyDuck/LonelyDuck/Server/Modules/Application/MiscTools.js:406:6)'
-     * Each of these will be reduced to a format like this:
-     * 'MiscTools'
-     */
-    let callerInfoList = traceLineList.map(line => {
-        const linePartList = line.split(':');
-        const untrimmedModulePathPartStr = linePartList[0];
-        const untrimmedPathList = untrimmedModulePathPartStr.split('/');
-        const moduleNameStr = untrimmedPathList[untrimmedPathList.length - 1];
-        return moduleNameStr;
-    });
-    
-    return callerInfoList;
-}
-
 /**
  * Returns a list of up to 10 caller function names of the caller stack.
  *
@@ -139,7 +115,7 @@ function _getCallerModuleInfoList (ext = true) {
  * @param {string} dateTimeFormat - Either 'iso' or 'utc'
  */
 class Logger {
-    constructor(isNamed = false, ext = true, showCaller = false, showLineNumber = false, dateTimeFormat = 'iso') {
+    constructor(isNamed = false, showModule = true, ext = true, showCaller = false, showLineNumber = false, dateTimeFormat = 'iso') {
         // Current command
         this.command = '';
         // Last line
@@ -147,6 +123,7 @@ class Logger {
 
         // this.name = name || ""
         this.isNamed = isNamed;
+        this.showModule = showModule;
         this.ext = ext;
         this.showCaller = showCaller;
         this.showLineNumber = showLineNumber;
@@ -166,8 +143,8 @@ class Logger {
     }
 
     createNamedLogger(opt) {
-        const { ext = true, showCaller = false, showLineNumber = false, dateTimeFormat = 'iso' } = opt || {};
-        return new Logger(true, ext, showCaller, showLineNumber, dateTimeFormat)
+        const { showModule = true, ext = true, showCaller = false, showLineNumber = false, dateTimeFormat = 'iso' } = opt || {};
+        return new Logger(true, showModule, ext, showCaller, showLineNumber, dateTimeFormat);
     }
 
     setLevel(level) {
@@ -244,16 +221,21 @@ class Logger {
 
     getPrefix() {
         if (this.isNamed) {
-            let format = `${this._getDate()} [${_getCallerModuleInfoList()[3].moduleName}`;
+            let format = `${this._getDate()} [`;
+
+            if (this.showModule) {
+                format += `${_getCallerModuleInfoList(this.ext)[3].moduleName}`;
+            }
+
             if (this.showCaller) {
-                format += ` > ${_getCallerList()[3]}`;
+                if (this.showModule) format += ` > ${_getCallerList()[3]}`;
+                else                 format += `${_getCallerList()[3]}`;
             }
             if (this.showLineNumber) {
-                format += `:${_getCallerModuleInfoList()[3].lineNumber}`;
+                format += `:${_getCallerModuleInfoList(this.ext)[3].lineNumber}`;
             }
             format += ']';
             return format;
-            // return `${this._getDate()} [${_getCallerModuleInfoList()[3].moduleName} > ${_getCallerList()[3]}]`;
         } 
         else {
             return this._getDate();
