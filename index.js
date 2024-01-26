@@ -165,12 +165,8 @@ class Logger {
         this._customizedConsole = console;
     }
 
-    createNamedLogger({ 
-        ext, 
-        showCaller, 
-        showLineNumber, 
-        dateTimeFormat 
-    }) {
+    createNamedLogger(opt) {
+        const { ext = true, showCaller = false, showLineNumber = false, dateTimeFormat = 'iso' } = opt || {};
         return new Logger(true, ext, showCaller, showLineNumber, dateTimeFormat)
     }
 

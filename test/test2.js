@@ -8,6 +8,13 @@ const lg = logger.createNamedLogger({ ext : true,
 lg.info('This is a test info string.');
 lg.info(`This is a test info string.`);
 
+const opt = undefined;
+const { ext = true, showCaller = false, showLineNumber = false, dateTimeFormat = 'iso' } = opt || {};
+lg.warn(`ext: ${ext}`);
+lg.warn(`showCaller: ${showCaller}`);
+lg.warn(`showLineNumber: ${showLineNumber}`);
+lg.warn(`dateTimeFormat: ${dateTimeFormat}`);
+
 function func1 () {
     lg.debug(`This is a test debug string inside a sync function.`);
     lg.notice(`This is a test debug string inside a sync function.`);
