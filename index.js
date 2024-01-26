@@ -33,16 +33,124 @@ const CONFIG = {
 };
 
 // Sequence of levels is important.
-const LEVELS = ["success", "debug", "info", "warn", "error", "disable"];
+const LEVELS = ["success", "debug", "info", "notice", "warn", "error", "disable"];
 
+function _getCallerInfoList () {
+    const trace = new Error().stack;
+
+    // Get a list split by \n.
+    let traceLineList = trace.split('\n');
+    // Get the same list without the first 'Error' item.
+    traceLineList = traceLineList.slice(1);
+
+    /* Each item in traceLineList has format like this:
+     * 'at Object.addError (/Volumes/SSD_2TB/Dropbox/Projects/LonelyDuck/LonelyDuck/Server/Modules/Application/MiscTools.js:406:6)'
+     * Each of these will be reduced to a format like this:
+     * 'MiscTools'
+     */
+    let callerInfoList = traceLineList.map(line => {
+        const linePartList = line.split(':');
+        const untrimmedModulePathPartStr = linePartList[0];
+        const untrimmedPathList = untrimmedModulePathPartStr.split('/');
+        const moduleNameStr = untrimmedPathList[untrimmedPathList.length - 1];
+        return moduleNameStr;
+    });
+    
+    return callerInfoList;
+}
+
+/**
+ * Returns a list of up to 10 caller function names of the caller stack.
+ *
+ * @return {string[]} callerList
+ */
+function _getCallerList () {
+	const trace = new Error().stack;
+
+	// Separate string based on the 'at' string.
+	// var trace_at_sep_list = trace.split('    at ');
+	const traceLineList = trace.split('    at ');
+
+	// Remove the first 'Error\n' string.
+	traceLineList.splice(0,1);
+
+	/* Caller that has function name will look like this:
+	 *     initDBCallback (/LonelyDuck/LonelyDuck/Server/main.js:219:3)
+	 * But those that don't have function name will look like this:
+	 *     /LonelyDuck/LonelyDuck/Server/main.js:219:3
+	 * If caller does not have function name, the name will appear as "Anonymous".
+	 */
+	const callerNameList = traceLineList.map(line => {
+		const linePartList = line.split(' ');
+		if (linePartList.length === 1) return 'Anonymous';
+		return linePartList[0];
+	});
+
+    // console.log(callerNameList);
+	return callerNameList;
+}
+/**
+ * Returns the list of filenames (with ext) of the caller stack.
+ * From immediate caller to last caller.
+ *
+ * @param {boolean} ext - Whether to show the file extension.
+ * 
+ * @return {string[]} moduleNameList
+ */
+function _getCallerModuleInfoList (ext = true) {
+	const trace = new Error().stack;
+    // console.log(trace);
+
+	// Get a list split by \n.
+    let traceLineList = trace.split('\n');
+	// Get the same list without the first 'Error' item.
+	traceLineList = traceLineList.slice(1);
+
+	/* Each item in traceLineList has format like this:
+	 * 'at Object.addError (/Volumes/SSD_2TB/Dropbox/Projects/LonelyDuck/LonelyDuck/Server/Modules/Application/MiscTools.js:406:6)'
+	 * Each of these will be reduced to a format like this:
+	 * 'MiscTools'
+	 */
+	let callerModuleInfoList = traceLineList.map(line => {
+		const linePartList = line.split(':');
+		const untrimmedModulePathPartStr = linePartList[0];
+		const untrimmedPathList = untrimmedModulePathPartStr.split('/');
+		const moduleName = untrimmedPathList[untrimmedPathList.length - 1];
+		return { moduleName, lineNumber: linePartList[1] };
+	});
+    
+    if (!ext) {
+        callerModuleInfoList = callerModuleInfoList.map(({moduleName, lineNumber}) => {
+            return { moduleName: moduleName.split('.')[0], lineNumber };
+        });
+    }
+
+    // console.log(callerModuleInfoList);
+	return callerModuleInfoList;
+}
+
+/**
+ * @class Logger
+ * @description A logger class that can be used to log with color.
+ * @param {boolean} isNamed - Whether to show the caller module name.
+ * @param {boolean} ext - Whether to show the file extension.
+ * @param {boolean} showCaller - Whether to show the caller function name.
+ * @param {boolean} showLineNumber - Whether to show the line number.
+ * @param {string} dateTimeFormat - Either 'iso' or 'utc'
+ */
 class Logger {
-    constructor(name) {
+    constructor(isNamed = false, ext = true, showCaller = false, showLineNumber = false, dateTimeFormat = 'iso') {
         // Current command
         this.command = '';
         // Last line
         this.lastCommand = '';
 
-        this.name = name || ""
+        // this.name = name || ""
+        this.isNamed = isNamed;
+        this.ext = ext;
+        this.showCaller = showCaller;
+        this.showLineNumber = showLineNumber;
+        this.dateTimeFormat = dateTimeFormat;
 
         // set level from env
         const level = process.env.LOGGER;
@@ -52,13 +160,18 @@ class Logger {
 
         this.noColor = false;
 
-        this._getDate = () => (new Date()).toISOString();
+        this._getDate = () => (dateTimeFormat === 'iso') ? (new Date()).toISOString() : (dateTimeFormat === 'utc') ? (new Date()).toUTCString() : (new Date()).toString();
 
         this._customizedConsole = console;
     }
 
-    createNamedLogger(name) {
-        return new Logger(name)
+    createNamedLogger({ 
+        ext = true, 
+        showCaller = true, 
+        showLineNumber = true, 
+        dateTimeFormat = 'iso' 
+    }) {
+        return new Logger(true, ext, showCaller, showLineNumber, dateTimeFormat)
     }
 
     setLevel(level) {
@@ -134,9 +247,19 @@ class Logger {
     }
 
     getPrefix() {
-        if (this.name) {
-            return `${this._getDate()} [${this.name}]`;
-        } else {
+        if (this.isNamed) {
+            let format = `${this._getDate()} [${_getCallerModuleInfoList()[3].moduleName}`;
+            if (this.showCaller) {
+                format += ` > ${_getCallerList()[3]}`;
+            }
+            if (this.showLineNumber) {
+                format += `:${_getCallerModuleInfoList()[3].lineNumber}`;
+            }
+            format += ']';
+            return format;
+            // return `${this._getDate()} [${_getCallerModuleInfoList()[3].moduleName} > ${_getCallerList()[3]}]`;
+        } 
+        else {
             return this._getDate();
         }
     }
@@ -272,6 +395,22 @@ class Logger {
                 .bgColor('yellow').color('black').append('[WARN]').reset()
                 .append(" ")
                 .color('yellow').log(...args);
+        }
+    }
+
+    notice(...args) {
+        if (!this.isAllowedLevel("notice"))
+            return;
+
+        if (this.noColor) {
+            const d = this.getPrefix();
+            this.log(d, " [NOTICE] ", ...args);
+        } else {
+            const d = this.getPrefix();
+            this.append(d + " ")
+                .bgColor('magenta').color('white').append('[NOTICE]').reset()
+                .append(" ")
+                .color('magenta').log(...args);
         }
     }
 
