@@ -8,7 +8,7 @@
     },
     "repository": {
       "type": "git",
-      "url": "git+https://github.com/tigercosmos/node-color-log.git"
+      "url": "git+https://github.com/david-cupist/node-color-log.git"
     },
     "keywords": [
       "color",
@@ -16,11 +16,7 @@
       "js",
       "logger"
     ],
-    "author": "tigercosmos",
-    "license": "MIT",
-    "bugs": {
-      "url": "https://github.com/tigercosmos/node-color-log/issues"
-    },
-    "homepage": "https://github.com/tigercosmos/node-color-log"
+    "author": "David Cupist",
+    "license": "MIT"
   }
   

@@ -115,6 +115,9 @@ function _getCallerModuleInfoList (ext = true) {
  * @param {boolean} showCaller - Whether to show the caller function name.
  * @param {boolean} showLineNumber - Whether to show the line number.
  * @param {string} dateTimeFormat - Either 'iso' or 'utc'
+ * @param {number} stackDepth - The depth of the stack to show.
+ * @param {boolean} debugMode - Whether to show the debug info.
+ * 
  */
 class Logger {
     constructor(
@@ -124,7 +127,7 @@ class Logger {
         showCaller = false, 
         showLineNumber = false, 
         dateTimeFormat = 'iso',
-        stackDepth = 3,
+        stackDepth,
         debugMode,
     ) {
         // Current command
