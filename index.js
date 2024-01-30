@@ -1,3 +1,5 @@
+const util = require('util');
+
 const CONFIG = {
     SYSTEM: {
         reset: "\x1b[0m",
@@ -123,7 +125,7 @@ class Logger {
         showLineNumber = false, 
         dateTimeFormat = 'iso',
         stackDepth = 3,
-        debugMode = false,
+        debugMode,
     ) {
         // Current command
         this.command = '';
@@ -138,7 +140,9 @@ class Logger {
         this.showLineNumber = showLineNumber;
         this.dateTimeFormat = dateTimeFormat;
         this.stackDepth = stackDepth;
-        this.debugMode = debugMode;
+        this.debugMode = debugMode || false;
+
+        console.log(`Logger: isNamed: ${this.isNamed}, showModule: ${this.showModule}, ext: ${this.ext}, showCaller: ${this.showCaller}, showLineNumber: ${this.showLineNumber}, dateTimeFormat: ${this.dateTimeFormat}, stackDepth: ${this.stackDepth}, debugMode: ${this.debugMode}`);
 
         // set level from env
         const level = process.env.LOGGER;
@@ -235,10 +239,15 @@ class Logger {
             let format = `${this._getDate()} [`;
 
             if (this.debugMode) {
-                format += `${_getCallerModuleInfoList(this.ext)}`;
-                format += `${_getCallerList()}`;
-                format += `${this.stackDepth}`;
-                return format;
+
+                console.log(`_getCallerModuleInfoList(this.ext): ${util.inspect(_getCallerModuleInfoList(this.ext))}`);
+                console.log(`_getCallerList(): ${util.inspect(_getCallerList())}`);
+                console.log(`this.stackDepth: ${this.stackDepth}`);
+
+                // format += `${_getCallerModuleInfoList(this.ext)}`;
+                // format += `${_getCallerList()}`;
+                // format += `${this.stackDepth}`;
+                // return format;
             }
 
             if (this.showModule) {
