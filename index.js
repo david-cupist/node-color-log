@@ -161,8 +161,16 @@ class Logger {
     }
 
     createNamedLogger(opt) {
-        const { showModule = true, ext = true, showCaller = false, showLineNumber = false, dateTimeFormat = 'iso' } = opt || {};
-        return new Logger(true, showModule, ext, showCaller, showLineNumber, dateTimeFormat);
+        const { 
+            showModule = true, 
+            ext = true, 
+            showCaller = false, 
+            showLineNumber = false, 
+            dateTimeFormat = 'iso',
+            stackDepth     = 3,
+            debugMode      = false,
+        } = opt || {};
+        return new Logger(true, showModule, ext, showCaller, showLineNumber, dateTimeFormat, stackDepth, debugMode);
     }
 
     setLevel(level) {
