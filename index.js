@@ -122,7 +122,8 @@ class Logger {
         showCaller = false, 
         showLineNumber = false, 
         dateTimeFormat = 'iso',
-        stackDepth = 3
+        stackDepth = 3,
+        debugMode = false,
     ) {
         // Current command
         this.command = '';
@@ -137,6 +138,7 @@ class Logger {
         this.showLineNumber = showLineNumber;
         this.dateTimeFormat = dateTimeFormat;
         this.stackDepth = stackDepth;
+        this.debugMode = debugMode;
 
         // set level from env
         const level = process.env.LOGGER;
@@ -231,6 +233,13 @@ class Logger {
     getPrefix() {
         if (this.isNamed) {
             let format = `${this._getDate()} [`;
+
+            if (this.debugMode) {
+                format += `${_getCallerModuleInfoList(this.ext)}`;
+                format += `${_getCallerList()}`;
+                format += `${this.stackDepth}`;
+                return format;
+            }
 
             if (this.showModule) {
                 format += `${_getCallerModuleInfoList(this.ext)[this.stackDepth].moduleName}`;
