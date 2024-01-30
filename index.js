@@ -115,7 +115,15 @@ function _getCallerModuleInfoList (ext = true) {
  * @param {string} dateTimeFormat - Either 'iso' or 'utc'
  */
 class Logger {
-    constructor(isNamed = false, showModule = true, ext = true, showCaller = false, showLineNumber = false, dateTimeFormat = 'iso') {
+    constructor(
+        isNamed = false, 
+        showModule = true,
+        ext = true, 
+        showCaller = false, 
+        showLineNumber = false, 
+        dateTimeFormat = 'iso',
+        stackDepth = 3
+    ) {
         // Current command
         this.command = '';
         // Last line
@@ -128,6 +136,7 @@ class Logger {
         this.showCaller = showCaller;
         this.showLineNumber = showLineNumber;
         this.dateTimeFormat = dateTimeFormat;
+        this.stackDepth = stackDepth;
 
         // set level from env
         const level = process.env.LOGGER;
@@ -224,15 +233,15 @@ class Logger {
             let format = `${this._getDate()} [`;
 
             if (this.showModule) {
-                format += `${_getCallerModuleInfoList(this.ext)[3].moduleName}`;
+                format += `${_getCallerModuleInfoList(this.ext)[this.stackDepth].moduleName}`;
             }
 
             if (this.showCaller) {
-                if (this.showModule) format += ` > ${_getCallerList()[3]}`;
-                else                 format += `${_getCallerList()[3]}`;
+                if (this.showModule) format += ` > ${_getCallerList()[this.stackDepth]}`;
+                else                 format += `${_getCallerList()[this.stackDepth]}`;
             }
             if (this.showLineNumber) {
-                format += `:${_getCallerModuleInfoList(this.ext)[3].lineNumber}`;
+                format += `:${_getCallerModuleInfoList(this.ext)[this.stackDepth].lineNumber}`;
             }
             format += ']';
             return format;
