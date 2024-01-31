@@ -251,9 +251,9 @@ class Logger {
 
             if (this.debugMode) {
 
-                console.log(`_getCallerModuleInfoList(this.ext): ${util.inspect(_getCallerModuleInfoList(this.ext))}`);
-                console.log(`_getCallerList(): ${util.inspect(_getCallerList())}`);
-                console.log(`this.stackDepth: ${this.stackDepth}`);
+                // console.log(`_getCallerModuleInfoList(this.ext): ${util.inspect(_getCallerModuleInfoList(this.ext))}`);
+                // console.log(`_getCallerList(): ${util.inspect(_getCallerList())}`);
+                // console.log(`this.stackDepth: ${this.stackDepth}`);
 
                 // format += `${_getCallerModuleInfoList(this.ext)}`;
                 // format += `${_getCallerList()}`;
