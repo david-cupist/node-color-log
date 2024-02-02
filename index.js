@@ -1,5 +1,8 @@
 const util = require('util');
 
+const { DateTime, IANAZone, SystemZone } = require('luxon');
+
+
 const CONFIG = {
     SYSTEM: {
         reset: "\x1b[0m",
@@ -145,7 +148,8 @@ class Logger {
         this.stackDepth = stackDepth;
         this.debugMode = debugMode || false;
 
-        console.log(`Logger: isNamed: ${this.isNamed}, showModule: ${this.showModule}, ext: ${this.ext}, showCaller: ${this.showCaller}, showLineNumber: ${this.showLineNumber}, dateTimeFormat: ${this.dateTimeFormat}, stackDepth: ${this.stackDepth}, debugMode: ${this.debugMode}`);
+        if (this.debugMode)
+            console.log(`Logger: isNamed: ${this.isNamed}, showModule: ${this.showModule}, ext: ${this.ext}, showCaller: ${this.showCaller}, showLineNumber: ${this.showLineNumber}, dateTimeFormat: ${this.dateTimeFormat}, stackDepth: ${this.stackDepth}, debugMode: ${this.debugMode}`);
 
         // set level from env
         const level = process.env.LOGGER;
@@ -155,7 +159,7 @@ class Logger {
 
         this.noColor = false;
 
-        this._getDate = () => (dateTimeFormat === 'iso') ? (new Date()).toISOString() : (dateTimeFormat === 'utc') ? (new Date()).toUTCString() : (new Date()).toString();
+        this._getDate = () => (dateTimeFormat === 'iso') ? (new Date()).toISOString() : (dateTimeFormat === 'utc') ? (new Date()).toUTCString() : DateTime.now().setZone('Asia/Seoul').toFormat('yy-MM-dd TTT');
 
         this._customizedConsole = console;
     }
@@ -248,18 +252,6 @@ class Logger {
     getPrefix() {
         if (this.isNamed) {
             let format = `${this._getDate()} [`;
-
-            if (this.debugMode) {
-
-                // console.log(`_getCallerModuleInfoList(this.ext): ${util.inspect(_getCallerModuleInfoList(this.ext))}`);
-                // console.log(`_getCallerList(): ${util.inspect(_getCallerList())}`);
-                // console.log(`this.stackDepth: ${this.stackDepth}`);
-
-                // format += `${_getCallerModuleInfoList(this.ext)}`;
-                // format += `${_getCallerList()}`;
-                // format += `${this.stackDepth}`;
-                // return format;
-            }
 
             if (this.showModule) {
                 format += `${_getCallerModuleInfoList(this.ext)[this.stackDepth].moduleName}`;

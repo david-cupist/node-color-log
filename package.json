@@ -4,19 +4,21 @@
     "description": "The more powerful JavaScript logger for NodeJS and browsers.",
     "main": "index.js",
     "scripts": {
-      "test": "node test/test.js && LOGGER=info node test/test2.js && node test/test3.js && LOGGER=info node test/test4.js && LOGGER=info node test/test_stream.js"
+        "test": "node test/test.js && LOGGER=info node test/test2.js && node test/test3.js && LOGGER=info node test/test4.js && LOGGER=info node test/test_stream.js"
     },
     "repository": {
-      "type": "git",
-      "url": "git+https://github.com/david-cupist/node-color-log.git"
+        "type": "git",
+        "url": "git+https://github.com/david-cupist/node-color-log.git"
     },
     "keywords": [
-      "color",
-      "log",
-      "js",
-      "logger"
+        "color",
+        "log",
+        "js",
+        "logger"
     ],
     "author": "David Cupist",
-    "license": "MIT"
-  }
-  
+    "license": "MIT",
+    "dependencies": {
+        "luxon": "^3.4.4"
+    }
+}
