@@ -1,6 +1,6 @@
 {
     "name": "@deokwons9004dev/node-color-log",
-    "version": "11.1.5",
+    "version": "11.2.1",
     "description": "The more powerful JavaScript logger for NodeJS and browsers.",
     "main": "index.js",
     "scripts": {
@@ -19,6 +19,7 @@
     "author": "David Cupist",
     "license": "MIT",
     "dependencies": {
-        "luxon": "^3.4.4"
+        "luxon": "^3.4.4",
+        "stacktracey": "^2.1.8"
     }
 }

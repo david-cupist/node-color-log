@@ -1,6 +1,7 @@
 const util = require('util');
 
-const { DateTime, IANAZone, SystemZone } = require('luxon');
+const { DateTime } = require('luxon');
+const StackTracey = require('stacktracey');
 
 
 const CONFIG = {
@@ -129,27 +130,31 @@ class Logger {
         ext = true, 
         showCaller = false, 
         showLineNumber = false, 
-        dateTimeFormat = 'iso',
-        stackDepth,
-        debugMode,
+        dateTimeFormat = 'kst',
+        stackDepth = 3,
+        debugMode = false,
     ) {
         // Current command
         this.command = '';
         // Last line
         this.lastCommand = '';
 
-        // this.name = name || ""
         this.isNamed = isNamed;
         this.showModule = showModule;
         this.ext = ext;
         this.showCaller = showCaller;
         this.showLineNumber = showLineNumber;
+
         this.dateTimeFormat = dateTimeFormat;
         this.stackDepth = stackDepth;
-        this.debugMode = debugMode || false;
+        this.debugMode = debugMode;
 
-        if (this.debugMode)
+        if (this.debugMode) {
+            console.log(StackTracey);
+
             console.log(`Logger: isNamed: ${this.isNamed}, showModule: ${this.showModule}, ext: ${this.ext}, showCaller: ${this.showCaller}, showLineNumber: ${this.showLineNumber}, dateTimeFormat: ${this.dateTimeFormat}, stackDepth: ${this.stackDepth}, debugMode: ${this.debugMode}`);
+        }
+            
 
         // set level from env
         const level = process.env.LOGGER;
@@ -159,7 +164,7 @@ class Logger {
 
         this.noColor = false;
 
-        this._getDate = () => (dateTimeFormat === 'iso') ? (new Date()).toISOString() : (dateTimeFormat === 'utc') ? (new Date()).toUTCString() : DateTime.now().setZone('Asia/Seoul').toFormat('yy-MM-dd TTT');
+        this._getDate = () => (dateTimeFormat === 'iso') ? (new Date()).toISOString() : (dateTimeFormat === 'utc') ? (new Date()).toUTCString() : (dateTimeFormat === 'kst') ? DateTime.now().setZone('Asia/Seoul').toFormat('yy-MM-dd TTT') : DateTime.now().toString();
 
         this._customizedConsole = console;
     }
@@ -170,7 +175,7 @@ class Logger {
             ext = true, 
             showCaller = false, 
             showLineNumber = false, 
-            dateTimeFormat = 'iso',
+            dateTimeFormat = 'kst',
             stackDepth     = 3,
             debugMode      = false,
         } = opt || {};
@@ -252,6 +257,11 @@ class Logger {
     getPrefix() {
         if (this.isNamed) {
             let format = `${this._getDate()} [`;
+
+            if (this.debugMode) {
+                const stack = new StackTracey();
+                console.log(stack);
+            }
 
             if (this.showModule) {
                 format += `${_getCallerModuleInfoList(this.ext)[this.stackDepth].moduleName}`;
