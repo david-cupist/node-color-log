@@ -120,6 +120,7 @@ function _getCallerModuleInfoList (ext = true) {
  * @param {boolean} showLineNumber - Whether to show the line number.
  * @param {string} dateTimeFormat - Either 'iso' or 'utc'
  * @param {number} stackDepth - The depth of the stack to show.
+ * @param {(object|string)[]} - A list of extra prefix blocks before msg.
  * @param {boolean} debugMode - Whether to show the debug info.
  * 
  */
@@ -132,6 +133,7 @@ class Logger {
         showLineNumber = false, 
         dateTimeFormat = 'kst',
         stackDepth = 3,
+        extraPrefixBlocks = [],
         debugMode = false,
     ) {
         // Current command
@@ -147,6 +149,7 @@ class Logger {
 
         this.dateTimeFormat = dateTimeFormat;
         this.stackDepth = stackDepth;
+        this.extraPrefixBlocks = extraPrefixBlocks;
         this.debugMode = debugMode;
 
         if (this.debugMode) {
@@ -177,9 +180,10 @@ class Logger {
             showLineNumber = false, 
             dateTimeFormat = 'kst',
             stackDepth     = 3,
+            extraPrefixBlocks = [],
             debugMode      = false,
         } = opt || {};
-        return new Logger(true, showModule, ext, showCaller, showLineNumber, dateTimeFormat, stackDepth, debugMode);
+        return new Logger(true, showModule, ext, showCaller, showLineNumber, dateTimeFormat, stackDepth, extraPrefixBlocks, debugMode);
     }
 
     setLevel(level) {
@@ -274,7 +278,17 @@ class Logger {
             if (this.showLineNumber) {
                 format += `:${_getCallerModuleInfoList(this.ext)[this.stackDepth].lineNumber}`;
             }
+            
             format += ']';
+
+            for (const extraPrefix of this.extraPrefixBlocks) {
+                if (typeof extraPrefix === 'string')
+                    format += ` [${extraPrefix}]`;
+                else if (typeof extraPrefix === 'object') {
+                    format += `${Object.entries(extraPrefix).map(([k, v]) => ` [${k}:${v}]`).join('')}]`;
+                }
+            }
+
             return format;
         } 
         else {
