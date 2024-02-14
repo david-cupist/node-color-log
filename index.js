@@ -2,6 +2,8 @@ const util = require('util');
 
 const { DateTime } = require('luxon');
 const StackTracey = require('stacktracey');
+let stackTrace = null;
+// const { get, parse } = require('stack-trace');
 
 
 const CONFIG = {
@@ -125,6 +127,7 @@ function _getCallerModuleInfoList (ext = true) {
  * 
  */
 class Logger {
+
     constructor(
         isNamed = false, 
         showModule = true,
@@ -156,6 +159,9 @@ class Logger {
             console.log(StackTracey);
 
             console.log(`Logger: isNamed: ${this.isNamed}, showModule: ${this.showModule}, ext: ${this.ext}, showCaller: ${this.showCaller}, showLineNumber: ${this.showLineNumber}, dateTimeFormat: ${this.dateTimeFormat}, stackDepth: ${this.stackDepth}, debugMode: ${this.debugMode}`);
+
+
+            
         }
             
 
@@ -170,6 +176,21 @@ class Logger {
         this._getDate = () => (dateTimeFormat === 'iso') ? (new Date()).toISOString() : (dateTimeFormat === 'utc') ? (new Date()).toUTCString() : (dateTimeFormat === 'kst') ? DateTime.now().setZone('Asia/Seoul').toFormat('yy-MM-dd TTT') : DateTime.now().toString();
 
         this._customizedConsole = console;
+
+        this.asyncInit();
+    }
+
+    async asyncInit () {
+        stackTrace = await import('stack-trace');
+
+        this.testStackTrace();
+    }
+
+    testStackTrace () {
+        const trace = stackTrace.get();
+        console.log(trace);
+        console.log(trace[0]);
+        console.log(stackTrace.parse(trace));
     }
 
     createNamedLogger(opt) {
